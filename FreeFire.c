@@ -30,6 +30,43 @@ int comparacoesVetor = 0;
 struct No* inicioLista = NULL;
 int comparacoesLista = 0;
 
+// ========== FUNÇÃO PARA LER NÚMEROS COM SEGURANÇA ==========
+int lerNumero() {
+    char input[100];
+    int numero;
+    int resultado;
+    
+    while (1) {
+        if (fgets(input, sizeof(input), stdin) != NULL) {
+            // Remove o \n do final se existir
+            input[strcspn(input, "\n")] = 0;
+            
+            // Tenta converter para número
+            resultado = sscanf(input, "%d", &numero);
+            
+            if (resultado == 1) {
+                return numero;  // Número válido
+            } else {
+                printf("❌ Entrada inválida! Digite um número: ");
+            }
+        }
+    }
+}
+
+// ========== FUNÇÃO PARA LER STRINGS COM SEGURANÇA ==========
+void lerString(char* destino, int tamanho) {
+    char input[100];
+    
+    if (fgets(input, sizeof(input), stdin) != NULL) {
+        // Remove o \n do final
+        input[strcspn(input, "\n")] = 0;
+        
+        // Copia apenas o que couber
+        strncpy(destino, input, tamanho - 1);
+        destino[tamanho - 1] = '\0'; // Garante que termina com \0
+    }
+}
+
 // ========== FUNÇÕES DO VETOR ==========
 
 void inserirVetor() {
@@ -39,12 +76,15 @@ void inserirVetor() {
     }
     
     printf("\n--- Adicionar Item no VETOR ---\n");
+    
     printf("Nome: ");
-    scanf("%s", mochilaVetor[totalItensVetor].nome);
+    lerString(mochilaVetor[totalItensVetor].nome, 30);
+    
     printf("Tipo (arma/municao/cura): ");
-    scanf("%s", mochilaVetor[totalItensVetor].tipo);
+    lerString(mochilaVetor[totalItensVetor].tipo, 20);
+    
     printf("Quantidade: ");
-    scanf("%d", &mochilaVetor[totalItensVetor].quantidade);
+    mochilaVetor[totalItensVetor].quantidade = lerNumero();
     
     totalItensVetor++;
     printf("✅ Item adicionado no vetor!\n");
@@ -58,7 +98,7 @@ void removerVetor() {
     
     char nome[30];
     printf("Nome do item para remover: ");
-    scanf("%s", nome);
+    lerString(nome, 30);
     
     for (int i = 0; i < totalItensVetor; i++) {
         if (strcmp(mochilaVetor[i].nome, nome) == 0) {
@@ -75,6 +115,11 @@ void removerVetor() {
 }
 
 void ordenarVetor() {
+    if (totalItensVetor == 0) {
+        printf("❌ Vetor vazio! Não há itens para ordenar.\n");
+        return;
+    }
+    
     // Bubble Sort simples para ordenar por nome
     for (int i = 0; i < totalItensVetor - 1; i++) {
         for (int j = 0; j < totalItensVetor - i - 1; j++) {
@@ -90,10 +135,15 @@ void ordenarVetor() {
 }
 
 void buscarSequencialVetor() {
+    if (totalItensVetor == 0) {
+        printf("❌ Vetor vazio! Não há itens para buscar.\n");
+        return;
+    }
+    
     comparacoesVetor = 0;
     char nome[30];
     printf("Nome para buscar: ");
-    scanf("%s", nome);
+    lerString(nome, 30);
     
     for (int i = 0; i < totalItensVetor; i++) {
         comparacoesVetor++;
@@ -109,10 +159,15 @@ void buscarSequencialVetor() {
 }
 
 void buscarBinariaVetor() {
+    if (totalItensVetor == 0) {
+        printf("❌ Vetor vazio! Não há itens para buscar.\n");
+        return;
+    }
+    
     comparacoesVetor = 0;
     char nome[30];
     printf("Nome para busca binária: ");
-    scanf("%s", nome);
+    lerString(nome, 30);
     
     int inicio = 0;
     int fim = totalItensVetor - 1;
@@ -142,6 +197,11 @@ void buscarBinariaVetor() {
 
 void listarVetor() {
     printf("\n--- Itens no VETOR (%d itens) ---\n", totalItensVetor);
+    if (totalItensVetor == 0) {
+        printf("Vetor vazio!\n");
+        return;
+    }
+    
     for (int i = 0; i < totalItensVetor; i++) {
         printf("%d. %s | %s | %d unidades\n", 
                i + 1, mochilaVetor[i].nome, mochilaVetor[i].tipo, mochilaVetor[i].quantidade);
@@ -154,12 +214,15 @@ void inserirLista() {
     struct No* novoNo = (struct No*)malloc(sizeof(struct No));
     
     printf("\n--- Adicionar Item na LISTA ---\n");
+    
     printf("Nome: ");
-    scanf("%s", novoNo->dados.nome);
+    lerString(novoNo->dados.nome, 30);
+    
     printf("Tipo (arma/municao/cura): ");
-    scanf("%s", novoNo->dados.tipo);
+    lerString(novoNo->dados.tipo, 20);
+    
     printf("Quantidade: ");
-    scanf("%d", &novoNo->dados.quantidade);
+    novoNo->dados.quantidade = lerNumero();
     
     novoNo->proximo = inicioLista;
     inicioLista = novoNo;
@@ -175,7 +238,7 @@ void removerLista() {
     
     char nome[30];
     printf("Nome do item para remover: ");
-    scanf("%s", nome);
+    lerString(nome, 30);
     
     struct No* atual = inicioLista;
     struct No* anterior = NULL;
@@ -200,10 +263,15 @@ void removerLista() {
 }
 
 void buscarLista() {
+    if (inicioLista == NULL) {
+        printf("❌ Lista vazia! Não há itens para buscar.\n");
+        return;
+    }
+    
     comparacoesLista = 0;
     char nome[30];
     printf("Nome para buscar: ");
-    scanf("%s", nome);
+    lerString(nome, 30);
     
     struct No* atual = inicioLista;
     
@@ -226,15 +294,16 @@ void listarLista() {
     struct No* atual = inicioLista;
     int contador = 1;
     
+    if (atual == NULL) {
+        printf("Lista vazia!\n");
+        return;
+    }
+    
     while (atual != NULL) {
         printf("%d. %s | %s | %d unidades\n", 
                contador, atual->dados.nome, atual->dados.tipo, atual->dados.quantidade);
         atual = atual->proximo;
         contador++;
-    }
-    
-    if (contador == 1) {
-        printf("Lista vazia!\n");
     }
 }
 
@@ -252,7 +321,8 @@ void menuVetor() {
         printf("6. Busca binária (após ordenar)\n");
         printf("0. Voltar\n");
         printf("Escolha: ");
-        scanf("%d", &opcao);
+        
+        opcao = lerNumero();
         
         switch (opcao) {
             case 1: inserirVetor(); break;
@@ -261,8 +331,8 @@ void menuVetor() {
             case 4: ordenarVetor(); break;
             case 5: buscarSequencialVetor(); break;
             case 6: buscarBinariaVetor(); break;
-            case 0: printf("Voltando...\n"); break;
-            default: printf("❌ Opção inválida!\n");
+            case 0: printf("Voltando ao menu principal...\n"); break;
+            default: printf("❌ Opção inválida! Digite 0-6.\n");
         }
     } while (opcao != 0);
 }
@@ -277,15 +347,16 @@ void menuLista() {
         printf("4. Busca sequencial\n");
         printf("0. Voltar\n");
         printf("Escolha: ");
-        scanf("%d", &opcao);
+        
+        opcao = lerNumero();
         
         switch (opcao) {
             case 1: inserirLista(); break;
             case 2: removerLista(); break;
             case 3: listarLista(); break;
             case 4: buscarLista(); break;
-            case 0: printf("Voltando...\n"); break;
-            default: printf("❌ Opção inválida!\n");
+            case 0: printf("Voltando ao menu principal...\n"); break;
+            default: printf("❌ Opção inválida! Digite 0-4.\n");
         }
     } while (opcao != 0);
 }
@@ -301,13 +372,14 @@ int main() {
         printf("2. Trabalhar com LISTA ENCADEADA\n");
         printf("0. Sair\n");
         printf("Escolha: ");
-        scanf("%d", &opcao);
+        
+        opcao = lerNumero();
         
         switch (opcao) {
             case 1: menuVetor(); break;
             case 2: menuLista(); break;
-            case 0: printf("Saindo...\n"); break;
-            default: printf("❌ Opção inválida!\n");
+            case 0: printf("Saindo... Até logo!\n"); break;
+            default: printf("❌ Opção inválida! Digite 0, 1 ou 2.\n");
         }
     } while (opcao != 0);
     
